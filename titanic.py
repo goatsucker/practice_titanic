@@ -4,6 +4,7 @@ import keras
 from keras.layers import Dense
 from keras.models import Sequential
 from keras.utils import to_categorical
+from keras.callbacks import EarlyStopping
 import pandas as pd
 
 
@@ -13,14 +14,14 @@ def main():
 	# separate half of data for training, another portion for evaluate
 
 	# training data pre-process
-	train_predictors = train_df.loc[0:train_df.shape[0]/2, ["Pclass", "Fare"]]
+	train_predictors = train_df[["Pclass", "Fare"]]
 	train_n_cols = train_predictors.shape[1]
-	train_target = to_categorical(train_df.loc[0:train_df.shape[0]/2, ["Survived"]])
+	train_target = to_categorical(train_df[["Survived"]])
 
 	# testing data pre-process
-	test_predictors = train_df.loc[train_df.shape[0]/2 + 1: , ["Pclass", "Fare"]]
-	test_n_cols = test_predictors.shape[1]
-	test_target = to_categorical(train_df.loc[train_df.shape[0]/2 + 1: , ["Survived"]])
+	#test_predictors = train_df.loc[train_df.shape[0]/2 + 1: , ["Pclass", "Fare"]]
+	#test_n_cols = test_predictors.shape[1]
+	#test_target = to_categorical(train_df.loc[train_df.shape[0]/2 + 1: , ["Survived"]])
 
 	# Set up the model
 	model = Sequential()
@@ -41,9 +42,11 @@ def main():
 	model.summary()
 
 	print("------- fit -------------")
+	early_stopping_monitor = EarlyStopping(patience = 3)
+
 	# Fit the model
 	model.fit(train_predictors, train_target, batch_size=100, epochs = 100, verbose=1, 
-		validation_data=(test_predictors, test_target))
+		validation_split=0.3, callbacks=[early_stopping_monitor])
 
 	
 	print("------- evaluate -------------")
