@@ -1,5 +1,6 @@
 import tensorflow
 import keras
+import matplotlib.pyplot as plt
 
 from keras.layers import Dense
 from keras.layers import Dropout
@@ -8,6 +9,14 @@ from keras.utils import to_categorical
 from keras.callbacks import EarlyStopping
 import pandas as pd
 
+def show_train_history(training_data, target1, target2):
+    plt.plot(training_data.history[target1])
+    plt.plot(training_data.history[target2])
+    plt.title("Train History")
+    plt.ylabel("train")
+    plt.xlabel("Epoch")
+    plt.legend([target1, target2], loc="upper left")
+    plt.show()
 
 def main():
     train_df = pd.read_csv("train.csv")
@@ -45,8 +54,9 @@ def main():
     early_stopping_monitor = EarlyStopping(patience = 10)
 
     # Fit the model
-    model.fit(train_predictors, train_target, batch_size=100, epochs = 100, verbose=1, validation_split=0.3, callbacks=[early_stopping_monitor])
-	
+    training = model.fit(train_predictors, train_target, batch_size=100, epochs = 100, verbose=1, validation_split=0.3, callbacks=[early_stopping_monitor])
+    
+    show_train_history(training, "acc", "val_acc")
 
 if __name__ == "__main__":
     # execute only if run as a script
